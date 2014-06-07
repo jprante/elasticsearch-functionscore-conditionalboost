@@ -45,41 +45,41 @@ public class FunctionScorePluginTest extends AbstractNodeTestHelper {
                 indexRequest("test").type("products").id("1")
                         .source(jsonBuilder().startObject()
                                 .field("content", "foo bar")
-                                .field("product", "product_name1")
+                                .field("product", "product_name_1")
                                 .endObject())).actionGet();
         client().index(
                 indexRequest("test").type("products").id("2")
                         .source(jsonBuilder().startObject()
                                 .field("content", "foo bar")
-                                .field("product", "product_name2")
+                                .field("product", "product_name_2")
                                 .endObject())).actionGet();
         client().index(
                 indexRequest("test").type("products").id("3")
                         .source(jsonBuilder().startObject()
                                 .field("content", "foo bar")
-                                .field("product", "product_name3")
+                                .field("product", "product_name_3")
                                 .endObject())).actionGet();
 
         client().index(
                 indexRequest("test").type("products").id("4")
                         .source(jsonBuilder().startObject()
                                 .field("content", "foo bar")
-                                .field("product", "product_name1")
-                                .field("user", "user_name1")
+                                .field("product", "product_name_1")
+                                .field("user", "user_name_1")
                                 .endObject())).actionGet();
         client().index(
                 indexRequest("test").type("products").id("5")
                         .source(jsonBuilder().startObject()
                                 .field("content", "foo bar")
-                                .field("product", "product_name2")
-                                .field("user", "user_name1")
+                                .field("product", "product_name_2")
+                                .field("user", "user_name_1")
                                 .endObject())).actionGet();
         client().index(
                 indexRequest("test").type("products").id("6")
                         .source(jsonBuilder().startObject()
                                 .field("content", "foo bar")
-                                .field("product", "product_name3")
-                                .field("user", "user_name1")
+                                .field("product", "product_name_3")
+                                .field("user", "user_name_1")
                                 .endObject())).actionGet();
 
         client().admin().indices().prepareRefresh().execute().actionGet();
@@ -87,8 +87,8 @@ public class FunctionScorePluginTest extends AbstractNodeTestHelper {
         CondBoostFactorFunctionBuilder cbfb = new CondBoostFactorFunctionBuilder()
                 .factor(1.0f)
                 .modifier(CondBoostFactorFunction.Modifier.NONE)
-                .condBoost("product", "product_name1", 2.0f)
-                .condBoost("user", "user_name1", 3.0f);
+                .condBoost("product", "product_name_1", 2.0f)
+                .condBoost("user", "user_name_1", 3.0f);
 
         SearchRequest searchRequest = searchRequest()
                 .searchType(SearchType.QUERY_THEN_FETCH)

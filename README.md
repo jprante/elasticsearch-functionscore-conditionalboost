@@ -37,71 +37,81 @@ in field value factor score function, see
 
 Full example:
 
-
-	curl -XPUT '0:9200/test/products/1' -d '
-	{
-		"content" : "foo bar",
-		"product" : "product_name_1"
-	}
-	'
-
-	curl -XPUT '0:9200/test/products/2' -d '
-	{
-		"content" : "foo bar",
-		"product" : "product_name_2"
-	}
-	'
-
-	curl -XPUT '0:9200/test/products/3' -d '
-	{
-		"content" : "foo bar",
-		"product" : "product_name_3"
-	}
-	'
-
-	curl -XPUT '0:9200/test/products/4' -d '
-	{
-		"content" : "foo bar",
-		"product" : "product_name_1",
-		"user" : "user_name_1"
-	}
-	'
-
-	curl -XPUT '0:9200/test/products/5' -d '
-	{
-		"content" : "foo bar",
-		"product" : "product_name_2",
-		"user" : "user_name_1"
-	}
-	'
-
-	curl -XPUT '0:9200/test/products/6' -d '
-	{
-		"content" : "foo bar",
-		"product" : "product_name_3",
-		"user" : "user_name_1"
-	}
-	'
-
-	curl -XGET '0:9200/test/products/_search' -d '
-	{
-	  "query":{
-		"function_score":{
-		  "query":{"term":"foo"},
-		  "cond_boost":{
-			"cond":[
-			  {"product":"product_name_1","value":2.0},
-			  {"user":"user_name1","value":3.0}
-			],
-			"value":1.0,
-			"factor":1.0,
-			"modifier":"NONE"
-		  } 
-		}
-	  },
-	  "explain":false
-	}
-	'
+    curl -XDELETE '0:9200/test'
+    
+    curl -XPUT '0:9200/test' -d '
+    {
+        "index.number_of_shards" : 2,
+        "index.number_of_replicas" : 1
+    }
+    '
+    
+    curl -XPUT '0:9200/test/products/1' -d '
+    {
+        "content" : "foo bar",
+        "product" : "product_name_1"
+    }
+    '
+    
+    curl -XPUT '0:9200/test/products/2' -d '
+    {
+        "content" : "foo bar",
+        "product" : "product_name_2"
+    }
+    '
+    
+    curl -XPUT '0:9200/test/products/3' -d '
+    {
+        "content" : "foo bar",
+        "product" : "product_name_3"
+    }
+    '
+    
+    curl -XPUT '0:9200/test/products/4' -d '
+    {
+        "content" : "foo bar",
+        "product" : "product_name_1",
+        "user" : "user_name_1"
+    }
+    '
+    
+    curl -XPUT '0:9200/test/products/5' -d '
+    {
+        "content" : "foo bar",
+        "product" : "product_name_2",
+        "user" : "user_name_1"
+    }
+    '
+    
+    curl -XPUT '0:9200/test/products/6' -d '
+    {
+        "content" : "foo bar",
+        "product" : "product_name_3",
+        "user" : "user_name_1"
+    }
+    '
+    
+    curl -XGET '0:9200/test/_refresh'
+    
+    curl -XGET '0:9200/test/products/_search' -d '
+    {
+      "query":{
+        "function_score":{
+          "query":{"term": { "content" : "foo"} },
+          "cond_boost":{
+            "cond":[
+              {"product":"product_name_1","value":2.0},
+              {"user":"user_name_1","value":3.0}
+            ],
+            "value":1.0,
+            "factor":1.0,
+            "modifier":"NONE"
+          } 
+        }
+      },
+      "explain":false
+    }
+    '
 
 
 ## Versions
