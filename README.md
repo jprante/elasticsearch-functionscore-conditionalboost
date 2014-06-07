@@ -6,11 +6,11 @@ This plugin offers function score conditional boosting, depending on values of o
 Note, conditional boosting is also possible by scripting. 
 
 This plugin demonstrates how to implement a solution without scripting by extending the 
-Elasticsearch functional score module.
+Elasticsearch function score module.
 
 ## Example
 
-Imagine a shop wants to advertise non-sellers in the search list of an online shop without telling the 
+Imagine a shop wants to advertise non-sellers in the search list of the online shop without telling the 
 visitors. Your boss comes in and in a harsh voice you hear the command, "Push those damned non-sellers 
 out this month and keep the search response time low, or you are fired!"
 
@@ -19,21 +19,19 @@ Normally, you would have to re-index all the content with adjusted boost values
 in a boost field, or use a script for function score, to mangle with the document fields, 
 evaluating them, and change the boost.
 
-With this plugin, you can fake the ranking on the fly without reindexing but also without scripting.
+With this plugin, you can fake the relevance ranking on the fly, without reindexing, but also without scripting.
  
 Assume the product `product_name_1` has to appear in the top results, you can formulate
-a boost condition with a boost value for `product_name_1`, and the score value will be modified 
+a boost condition with a specific boost value for `product_name_1`, and the score value will be modified 
 for these documents.
 
-Assume also a supplier `user_name_1` who has paid yu an illegal extra bonus if you rank him
-high. You could combine theses boosts, many string field and string values can be specified 
-to trigger a conditional document boost in a single query. 
+Assume also a supplier `user_name_1` who has paid you an illegal extra bonus if you rank him
+high. You could combine these boosts, many string field and string values can be specified 
+to trigger a combined conditional document boost in a single query. 
 
 If there is more than one match in the specified field values in a document, scores multiply each other. 
-For smoothing the scoring function, you can use a `factor` and a `modifier`, like
-in field value factor score function, see
-
-[here](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_field_value_factor)
+For smoothing the scoring function, you can use a `factor` and a `modifier` like
+in field value factor score function, see [here](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_field_value_factor)
 
 Full example:
 
@@ -132,7 +130,7 @@ Do not forget to restart the node after installing.
 
 | File                                          | SHA1                                     |
 | --------------------------------------------- | -----------------------------------------|
-| elasticsearch-condboost-1.2.1.0.zip         |  |
+| elasticsearch-condboost-1.2.1.0.zip           | 87ad45352427f44092794a862079015dde562596 |
 
 ## Project docs
 
