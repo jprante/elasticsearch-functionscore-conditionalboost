@@ -1,0 +1,2 @@
+org.xbib.elasticsearch.index.query.functionscore.condboost
+org.xbib.elasticsearch.plugin.condboost
