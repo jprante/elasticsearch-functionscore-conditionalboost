@@ -9,7 +9,7 @@ import java.util.Locale;
 
 import static org.elasticsearch.common.collect.Lists.newLinkedList;
 
-public class CondBoostFactorFunctionBuilder implements ScoreFunctionBuilder {
+public class CondBoostFactorFunctionBuilder extends ScoreFunctionBuilder {
 
     private Float value = 1.0f;
 
@@ -50,7 +50,7 @@ public class CondBoostFactorFunctionBuilder implements ScoreFunctionBuilder {
     }
 
     @Override
-    public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
+    public void doXContent(XContentBuilder builder, Params params) throws IOException {
         builder.startObject(getName());
         if (entryList != null) {
             builder.startArray("cond");
@@ -69,6 +69,5 @@ public class CondBoostFactorFunctionBuilder implements ScoreFunctionBuilder {
             builder.field("modifier", modifier.toString().toLowerCase(Locale.ROOT));
         }
         builder.endObject();
-        return builder;
     }
 }

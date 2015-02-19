@@ -6,7 +6,7 @@ import org.apache.lucene.util.BytesRef;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.common.lucene.search.function.ScoreFunction;
-import org.elasticsearch.index.fielddata.BytesValues;
+import org.elasticsearch.index.fielddata.SortedBinaryDocValues;
 
 import java.util.List;
 import java.util.Locale;
@@ -48,10 +48,10 @@ public class CondBoostFactorFunction extends ScoreFunction {
         this.boost = defaultBoost;
         this.appliedCondBoostEntryList = newLinkedList();
         for (CondBoostEntry entry : condBoostEntryList) {
-            BytesValues values = entry.ifd.load(context).getBytesValues(true);
-            final int numValues = values.setDocument(docId);
-            for (int i = 0; i < numValues; i++) {
-                BytesRef value = values.nextValue();
+            SortedBinaryDocValues values = entry.ifd.load(context).getBytesValues();
+            values.setDocument(docId);
+            for (int i = 0; i < values.count(); i++) {
+                BytesRef value = values.valueAt(i);
                 if (entry.fieldValue.equals(value.utf8ToString())) {
                     this.boost = this.boost * entry.boost; // multiply boosts by default
                     appliedCondBoostEntryList.add(entry);
@@ -68,14 +68,16 @@ public class CondBoostFactorFunction extends ScoreFunction {
     }
 
     @Override
-    public Explanation explainScore(int docId, Explanation subQueryExpl) {
+    public Explanation explainScore(int docId, float subQueryScore) {
         Explanation exp = new Explanation();
         String modifierStr = modifier != null ? modifier.toString() : "";
-        double score = score(docId, subQueryExpl.getValue());
+        double score = score(docId, subQueryScore);
         exp.setValue(CombineFunction.toFloat(score));
         exp.setDescription("cond boost function: " +
                 modifierStr + "(" + appliedCondBoostEntryList + "->value " + boost + "  * factor=" + boostFactor + ")");
-        exp.addDetail(subQueryExpl);
+        Explanation detail = new Explanation();
+        detail.setValue(subQueryScore);
+        exp.addDetail(detail);
         return exp;
     }
 

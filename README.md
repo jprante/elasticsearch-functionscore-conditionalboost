@@ -114,23 +114,16 @@ Full example:
 
 ## Versions
 
-| Elasticsearch version    | Plugin      | Release date |
-| ------------------------ | ----------- | -------------|
-| 1.2.1                    | 1.2.1.0     | Jun  7, 2014 |
+| Plugin      | Elasticsearch version  | Release date |
+| ----------- | ---------------------- | -------------|
+| 1.4.0.0     | 1.4.0                  | Feb 19, 2015 |
+| 1.2.1.0     | 1.2.1                  | Jun  7, 2014 |
 
 ## Installation
 
-```
-./bin/plugin -install condboost -url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-condboost/1.2.1.0/elasticsearch-condboost-1.2.1.0.zip
-```
+    ./bin/plugin -install condboost -url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-condboost/1.4.0.0/elasticsearch-condboost-1.4.0.0.zip
 
 Do not forget to restart the node after installing.
-
-## Checksum
-
-| File                                          | SHA1                                     |
-| --------------------------------------------- | -----------------------------------------|
-| elasticsearch-condboost-1.2.1.0.zip           | 87ad45352427f44092794a862079015dde562596 |
 
 ## Project docs
 

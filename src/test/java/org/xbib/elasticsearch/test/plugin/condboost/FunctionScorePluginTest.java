@@ -108,6 +108,11 @@ public class FunctionScorePluginTest extends AbstractNodeTestHelper {
         assertEquals(sh.getAt(1).getId(), "5");
         assertEquals(sh.getAt(2).getId(), "6");
         assertEquals(sh.getAt(3).getId(), "1");
+
+
+
     }
+
+
 
 }
