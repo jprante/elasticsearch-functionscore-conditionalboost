@@ -4,10 +4,9 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilder;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
-import static org.elasticsearch.common.collect.Lists.newLinkedList;
 
 public class CondBoostFactorFunctionBuilder extends ScoreFunctionBuilder {
 
@@ -17,7 +16,7 @@ public class CondBoostFactorFunctionBuilder extends ScoreFunctionBuilder {
 
     private CondBoostFactorFunction.Modifier modifier = CondBoostFactorFunction.Modifier.NONE;
 
-    private List<CondBoostEntry> entryList = newLinkedList();
+    private List<CondBoostEntry> entryList = new LinkedList<>();
 
     @Override
     public String getName() {

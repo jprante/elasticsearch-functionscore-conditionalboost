@@ -4,17 +4,16 @@ package org.xbib.elasticsearch.index.query.functionscore.condboost;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.lucene.search.function.ScoreFunction;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.index.mapper.FieldMapper;
+import org.elasticsearch.index.mapper.MappedFieldType;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.query.QueryParsingException;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionParser;
 import org.elasticsearch.search.internal.SearchContext;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
-import static org.elasticsearch.common.collect.Lists.newLinkedList;
 
 /**
  * Parses out a function_score function that looks like:
@@ -41,7 +40,7 @@ import static org.elasticsearch.common.collect.Lists.newLinkedList;
  */
 public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
 
-    public static String[] NAMES = { "cond_boost", "condBoost" };
+    static String[] NAMES = { "cond_boost", "condBoost" };
 
     @Override
     public String[] getNames() {
@@ -51,7 +50,7 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
     @Override
     public ScoreFunction parse(QueryParseContext parseContext, XContentParser parser) throws IOException, QueryParsingException {
         String currentFieldName = null;
-        List<CondBoostEntry> condArray = newLinkedList();
+        List<CondBoostEntry> condArray = new LinkedList<>();
         float defaultBoost = 1.0f;
         float boostFactor = 1.0f;
         CondBoostFactorFunction.Modifier modifier = CondBoostFactorFunction.Modifier.NONE;
@@ -62,18 +61,20 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
             } else if (token == XContentParser.Token.START_ARRAY) {
                 condArray = parseCondArray(parseContext, parser, currentFieldName);
             } else if (token.isValue()) {
-                switch (currentFieldName) {
-                    case "value":
-                        defaultBoost = parser.floatValue();
-                        break;
-                    case "factor":
-                        boostFactor = parser.floatValue();
-                        break;
-                    case "modifier":
-                        modifier = CondBoostFactorFunction.Modifier.valueOf(parser.text().toUpperCase(Locale.ROOT));
-                        break;
-                    default:
-                        throw new QueryParsingException(parseContext.index(), NAMES[0] + " query does not support [" + currentFieldName + "]");
+                if (currentFieldName != null) {
+                    switch (currentFieldName) {
+                        case "value":
+                            defaultBoost = parser.floatValue();
+                            break;
+                        case "factor":
+                            boostFactor = parser.floatValue();
+                            break;
+                        case "modifier":
+                            modifier = CondBoostFactorFunction.Modifier.valueOf(parser.text().toUpperCase(Locale.ROOT));
+                            break;
+                        default:
+                            throw new QueryParsingException(parseContext, NAMES[0] + " query does not support [" + currentFieldName + "]");
+                    }
                 }
             }
         }
@@ -82,10 +83,10 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
 
     private List<CondBoostEntry> parseCondArray(QueryParseContext parseContext, XContentParser parser, String currentFieldName) throws IOException {
         XContentParser.Token token;
-        List<CondBoostEntry> condArray = newLinkedList();
+        List<CondBoostEntry> condArray = new LinkedList<>();
         while ((token = parser.nextToken()) != XContentParser.Token.END_ARRAY) {
             if (token != XContentParser.Token.START_OBJECT) {
-                throw new QueryParsingException(parseContext.index(), "malformed query, expected a "
+                throw new QueryParsingException(parseContext, "malformed query, expected a "
                         + XContentParser.Token.START_OBJECT + " while parsing cond boost array, but got a " + token);
             } else {
                 CondBoostEntry entry = new CondBoostEntry();
@@ -100,11 +101,11 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
                             entry.fieldValue = parser.text();
                             // compute IndexFieldData from currentFieldName
                             SearchContext searchContext = SearchContext.current();
-                            FieldMapper mapper = searchContext.mapperService().smartNameFieldMapper(currentFieldName);
-                            if (mapper == null) {
-                                throw new ElasticsearchException("unable to find a field mapper for field [" + currentFieldName + "]");
+                            MappedFieldType mappedFieldType = searchContext.mapperService().fullName(currentFieldName);
+                            if (mappedFieldType == null) {
+                                throw new ElasticsearchException("unable to find field [" + currentFieldName + "]");
                             }
-                            entry.ifd = searchContext.fieldData().getForField(mapper);
+                            entry.ifd = searchContext.fieldData().getForField(mappedFieldType);
                         }
                     }
                 }

@@ -1,16 +1,14 @@
 package org.xbib.elasticsearch.plugin.condboost;
 
-import org.elasticsearch.index.query.functionscore.FunctionScoreModule;
-import org.elasticsearch.plugins.AbstractPlugin;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.search.SearchModule;
 import org.xbib.elasticsearch.index.query.functionscore.condboost.CondBoostFactorFunctionParser;
 
-public class CondBoostPlugin extends AbstractPlugin {
+public class CondBoostPlugin extends Plugin {
 
     @Override
     public String name() {
-        return "condboost-"
-                + Build.getInstance().getVersion() + "-"
-                + Build.getInstance().getShortHash();
+        return "condboost";
     }
 
     @Override
@@ -18,8 +16,8 @@ public class CondBoostPlugin extends AbstractPlugin {
         return "Conditional boost plugin";
     }
 
-    public void onModule(FunctionScoreModule scoreModule) {
-        scoreModule.registerParser(CondBoostFactorFunctionParser.class);
+    public void onModule(SearchModule searchModule) {
+        searchModule.registerFunctionScoreParser(CondBoostFactorFunctionParser.class);
     }
 
 }

@@ -1,21 +1,18 @@
 package org.xbib.elasticsearch.index.query.functionscore.condboost;
 
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Explanation;
-import org.apache.lucene.util.BytesRef;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.lucene.search.function.LeafScoreFunction;
 import org.elasticsearch.common.lucene.search.function.ScoreFunction;
 import org.elasticsearch.index.fielddata.SortedBinaryDocValues;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import static org.elasticsearch.common.collect.Lists.newLinkedList;
-
 public class CondBoostFactorFunction extends ScoreFunction {
-
-    private AtomicReaderContext context;
 
     private final List<CondBoostEntry> condBoostEntryList;
 
@@ -23,13 +20,11 @@ public class CondBoostFactorFunction extends ScoreFunction {
 
     private final Modifier modifier;
 
-    private double defaultBoost;
+    private final float defaultBoost;
 
-    private double boost;
+    private float boost;
 
-    private List<CondBoostEntry> appliedCondBoostEntryList;
-
-    public CondBoostFactorFunction(List<CondBoostEntry> condBoostEntryList,
+    CondBoostFactorFunction(List<CondBoostEntry> condBoostEntryList,
                                    float defaultBoost, float boostFactor, Modifier modifierType) {
         super(CombineFunction.MULT);
         this.condBoostEntryList = condBoostEntryList;
@@ -39,46 +34,47 @@ public class CondBoostFactorFunction extends ScoreFunction {
     }
 
     @Override
-    public void setNextReader(AtomicReaderContext context) {
-        this.context = context;
-    }
-
-    @Override
-    public double score(int docId, float subQueryScore) {
-        this.boost = defaultBoost;
-        this.appliedCondBoostEntryList = newLinkedList();
-        for (CondBoostEntry entry : condBoostEntryList) {
-            SortedBinaryDocValues values = entry.ifd.load(context).getBytesValues();
-            values.setDocument(docId);
-            for (int i = 0; i < values.count(); i++) {
-                BytesRef value = values.valueAt(i);
-                if (entry.fieldValue.equals(value.utf8ToString())) {
-                    this.boost = this.boost * entry.boost; // multiply boosts by default
-                    appliedCondBoostEntryList.add(entry);
+    public LeafScoreFunction getLeafScoreFunction(final LeafReaderContext ctx) throws IOException {
+        return new LeafScoreFunction() {
+            @Override
+            public double score(int docId, float subQueryScore) {
+                System.err.println("score");
+                boost = defaultBoost;
+                for (CondBoostEntry entry : condBoostEntryList) {
+                    SortedBinaryDocValues values = entry.ifd.load(ctx).getBytesValues();
+                    values.setDocument(docId);
+                    for (int i = 0; i < values.count(); i++) {
+                        if (entry.fieldValue.equals(values.valueAt(i).utf8ToString())) {
+                            boost = boost * entry.boost; // multiply boosts by default
+                            System.err.println("entry.fieldvalue=" + entry.fieldValue + " boost=" + boost);
+                        }
+                    }
                 }
+                double val = boost * boostFactor;
+                double result = modifier.apply(val);
+                System.err.println("result=" + result);
+                if (Double.isNaN(result) || Double.isInfinite(result)) {
+                    throw new ElasticsearchException("result of field modification [" + modifier.toString() +
+                            "(" + val + ")] must be a number");
+                }
+                return result;
             }
-        }
-        double val = boost * boostFactor;
-        double result = modifier.apply(val);
-        if (Double.isNaN(result) || Double.isInfinite(result)) {
-            throw new ElasticsearchException("result of field modification [" + modifier.toString() +
-                    "(" + val + ")] must be a number");
-        }
-        return result;
+
+            @Override
+            public Explanation explainScore(int docId, Explanation subQueryScore) throws IOException {
+                return Explanation.match(boost, "condboost");
+            }
+        };
     }
 
     @Override
-    public Explanation explainScore(int docId, float subQueryScore) {
-        Explanation exp = new Explanation();
-        String modifierStr = modifier != null ? modifier.toString() : "";
-        double score = score(docId, subQueryScore);
-        exp.setValue(CombineFunction.toFloat(score));
-        exp.setDescription("cond boost function: " +
-                modifierStr + "(" + appliedCondBoostEntryList + "->value " + boost + "  * factor=" + boostFactor + ")");
-        Explanation detail = new Explanation();
-        detail.setValue(subQueryScore);
-        exp.addDetail(detail);
-        return exp;
+    public boolean needsScores() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "condboost[" + boost + "]";
     }
 
     public enum Modifier {
