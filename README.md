@@ -115,6 +115,7 @@ Full example:
 
 | Plugin      | Elasticsearch version  | Release date |
 | ----------- | ---------------------- | -------------|
+| 2.3.3.1     | 2.3.3                  | Jun 27, 2016 |
 | 2.3.3.0     | 2.3.3                  | Jun 19, 2016 |
 | 1.4.0.0     | 1.4.0                  | Feb 19, 2015 |
 | 1.2.1.0     | 1.2.1                  | Jun  7, 2014 |
@@ -122,7 +123,7 @@ Full example:
 
 ## Installation 2.x
 
-    ./bin/plugin install http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-condboost/2.3.3.0/elasticsearch-condboost-2.3.3.0-plugin.zip
+    ./bin/plugin install http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-condboost/2.3.3.1/elasticsearch-condboost-2.3.3.1-plugin.zip
 
 
 ## Installation

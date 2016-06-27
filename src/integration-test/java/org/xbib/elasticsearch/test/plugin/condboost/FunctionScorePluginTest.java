@@ -2,7 +2,6 @@ package org.xbib.elasticsearch.test.plugin.condboost;
 
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.Priority;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
 import org.xbib.elasticsearch.index.query.functionscore.condboost.CondBoostFactorFunction;
@@ -20,14 +19,14 @@ import static org.junit.Assert.assertEquals;
 public class FunctionScorePluginTest extends NodeTestUtils {
 
     @Test
-    public void testPlugin() throws Exception {
+    public void testSearch() throws Exception {
         client("1").admin()
                 .indices()
                 .prepareCreate("test")
                 .execute().actionGet();
 
         client("1").admin().cluster().prepareHealth()
-                .setWaitForEvents(Priority.LANGUID).setWaitForYellowStatus().execute().actionGet();
+                .setWaitForYellowStatus().execute().actionGet();
 
         client("1").index(
                 indexRequest("test").type("products").id("1")

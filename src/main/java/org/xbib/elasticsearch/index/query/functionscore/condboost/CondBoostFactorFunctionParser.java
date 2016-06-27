@@ -1,14 +1,11 @@
 
 package org.xbib.elasticsearch.index.query.functionscore.condboost;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.lucene.search.function.ScoreFunction;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.index.mapper.MappedFieldType;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.query.QueryParsingException;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionParser;
-import org.elasticsearch.search.internal.SearchContext;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -63,7 +60,7 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
             } else if (token.isValue()) {
                 if (currentFieldName != null) {
                     switch (currentFieldName) {
-                        case "value":
+                        case CondBoostEntry.BOOST:
                             defaultBoost = parser.floatValue();
                             break;
                         case "factor":
@@ -78,7 +75,7 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
                 }
             }
         }
-        return new CondBoostFactorFunction(condArray, defaultBoost, boostFactor, modifier);
+        return new CondBoostFactorFunction(parseContext, condArray, defaultBoost, boostFactor, modifier);
     }
 
     private List<CondBoostEntry> parseCondArray(QueryParseContext parseContext, XContentParser parser, String currentFieldName) throws IOException {
@@ -94,18 +91,11 @@ public class CondBoostFactorFunctionParser implements ScoreFunctionParser {
                     if (token == XContentParser.Token.FIELD_NAME) {
                         currentFieldName = parser.currentName();
                     } else {
-                        if ("value".equals(currentFieldName)) {
+                        if (CondBoostEntry.BOOST.equals(currentFieldName)) {
                             entry.boost = parser.floatValue();
                         } else {
                             entry.fieldName = currentFieldName;
                             entry.fieldValue = parser.text();
-                            // compute IndexFieldData from currentFieldName
-                            SearchContext searchContext = SearchContext.current();
-                            MappedFieldType mappedFieldType = searchContext.mapperService().fullName(currentFieldName);
-                            if (mappedFieldType == null) {
-                                throw new ElasticsearchException("unable to find field [" + currentFieldName + "]");
-                            }
-                            entry.ifd = searchContext.fieldData().getForField(mappedFieldType);
                         }
                     }
                 }
