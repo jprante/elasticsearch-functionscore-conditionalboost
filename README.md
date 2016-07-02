@@ -123,12 +123,12 @@ Full example:
 
 ## Installation 2.x
 
-    ./bin/plugin install http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-condboost/2.3.3.1/elasticsearch-condboost-2.3.3.1-plugin.zip
+    ./bin/plugin install http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-functionscore-conditionalboost/2.3.3.1/elasticsearch-functionscore-conditionalboost-2.3.3.1-plugin.zip
 
 
 ## Installation
 
-    ./bin/plugin -install condboost -url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-condboost/1.4.0.0/elasticsearch-condboost-1.4.0.0.zip
+    ./bin/plugin -install condboost -url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-functionscore-conditionalboost/1.4.0.0/elasticsearch-functionscore-conditionalboost-1.4.0.0-plugin.zip
 
 Do not forget to restart the node after installing.
 
